@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Morning Check-in</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playpen+Sans:wght@400;600;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: gentle, warm, never a test - "there are no wrong answers"
+   IDEA: a morning sky - the header is a sunrise, each step is one calm card
+   PICTURE: five drawn faces from sunny to stormy, big enough to tap
+   COLOUR and TYPE: sunrise orange field, soft sky ground, face colours from yellow to blue; Playpen Sans
+   LAYOUT: one question per screen, one column, max 720px, progress dots under the title */
+:root{color-scheme:light;
+ --bg:#fff6ee;--card:#ffffff;--ink:#2a1f3d;--soft:#6e6283;
+ --sun:#ff8a3d;--sun2:#ffe6d3;--pick:#fff0e4;--line:#f0dccd;--ok:#178a52}
+@supports (color: light-dark(#000,#fff)){:root{color-scheme:light dark;
+ --bg:light-dark(#fff6ee,#1a1430);--card:light-dark(#ffffff,#271f45);--ink:light-dark(#2a1f3d,#f4efff);--soft:light-dark(#6e6283,#b9afd3);
+ --sun:light-dark(#ff8a3d,#d9692a);--sun2:light-dark(#ffe6d3,#4a2f2a);--pick:light-dark(#fff0e4,#3b2d55);--line:light-dark(#f0dccd,#3d3263);--ok:light-dark(#178a52,#3fd08a)}}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.5 "Playpen Sans","Comic Sans MS",system-ui,sans-serif;overflow-x:clip}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;border-radius:18px;min-height:48px;padding:10px 20px;font-weight:600}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.hero{position:relative;overflow:hidden;color:#fff;padding:30px max(5vw,16px) 70px;
+ background:linear-gradient(115deg,#ffa24c 0%,#ff7a5c 45%,#f0607a 75%,#e8508a 100%)}
+.hero .sun{position:absolute;width:clamp(170px,34vw,440px);height:auto;right:clamp(-150px,-8vw,-40px);top:clamp(-150px,-12vw,-60px);pointer-events:none}
+.hero .scene{position:absolute;left:0;right:0;bottom:-2px;width:100%;height:calc(100% + 2px)}
+.hin{max-width:720px;margin:0 auto;position:relative;z-index:1}
+.hello{margin:0;font:500 17px/1.3 Poppins,"Playpen Sans",sans-serif;opacity:.95}
+h1{margin:2px 0 0;font:700 clamp(36px,7.5vw,56px)/1.05 Poppins,"Playpen Sans",sans-serif;text-shadow:0 2px 14px rgba(140,30,70,.22)}
+.date{display:inline-block;margin:12px 0 0;padding:5px 18px;border-radius:999px;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font:500 16px/1.4 Poppins,"Playpen Sans",sans-serif}
+.dots{display:flex;gap:6px;margin-top:14px;max-width:360px}.dots i{flex:1;height:8px;border-radius:99px;background:rgba(255,255,255,.4)}.dots i.on{background:#fff;box-shadow:0 1px 4px rgba(120,20,60,.25)}
+.emo{font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;line-height:1;font-style:normal}
+.qhead{display:flex;gap:16px;align-items:center;margin-bottom:6px}
+.ph{position:relative;display:grid;place-items:center;overflow:hidden;background:var(--sun2);flex:none}
+.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .3s}.ph img.ld{opacity:1}.ph .fb{display:none}.ph.noimg .fb{display:block}
+.ph:not(.noimg){background:linear-gradient(110deg,var(--sun2) 30%,var(--pick) 50%,var(--sun2) 70%);background-size:220% 100%;animation:shim 1.2s linear infinite}.ph:has(img.ld){animation:none}
+@keyframes shim{to{background-position:-220% 0}}
+.bad{color:#d2453a;font-weight:700;font-size:13px}
+.qpic{width:84px;height:84px;border-radius:22px;font-size:46px;box-shadow:0 4px 14px rgba(42,31,61,.12)}
+.oph{width:min(120px,100%);aspect-ratio:1;border-radius:18px;font-size:48px}
+.wgrid,.chips.wgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px}
+.wgrid .chip{flex-direction:column;border-radius:20px;padding:8px 8px 10px;gap:6px;font-size:18px}
+.wph{width:100%;aspect-ratio:1;border-radius:14px;font-size:44px}
+.qhead h2{margin:0}
+.face .fz{font-size:clamp(40px,8vw,54px)}.day .fz{display:block;font-size:32px;height:40px;line-height:40px}
+.chip{display:inline-flex;align-items:center;gap:8px}.chip .emo{font-size:28px}
+.opt{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:14px 10px}.opt .emo{font-size:44px}
+main{max-width:720px;margin:-34px auto 0;padding:0 16px 60px;position:relative;z-index:2}
+.card{background:var(--card);border-radius:24px;padding:clamp(18px,4vw,30px);box-shadow:0 2px 0 var(--line),0 10px 30px rgba(42,31,61,.08)}
+.card+.card{margin-top:18px}
+h2{font-size:clamp(24px,5vw,30px);line-height:1.15;margin:0 0 6px}
+.muted{color:var(--soft);font-size:15px}
+label{display:block;font-weight:600;margin:14px 0 6px}
+input.f,textarea{width:100%;font-size:20px;padding:12px 14px;border:2px solid var(--line);border-radius:14px;background:var(--bg)}
+textarea{min-height:130px;resize:vertical}
+.go{background:var(--sun);color:#fff;font-size:20px;padding:12px 28px}
+.ghost{background:var(--pick);color:var(--ink)}
+.link{background:none;padding:6px 4px;min-height:44px;color:var(--soft);text-decoration:underline;font-weight:400;font-size:15px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:18px}
+.err{color:#d2453a;font-weight:600;min-height:1.5em;margin:10px 0 0}
+.faces{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:16px}
+.face{background:var(--pick);padding:12px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;border:3px solid transparent;font-size:15px;line-height:1.2}
+.face svg{width:min(76px,100%);height:auto}
+.face.sel,.opt.sel,.chip.sel{border-color:var(--sun);background:var(--sun2)}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:16px}
+.opt{background:var(--pick);border:3px solid transparent;font-size:21px;min-height:76px}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.chip{background:var(--pick);border:3px solid transparent;border-radius:999px;font-size:19px;padding:8px 18px}
+.sum{list-style:none;padding:0;margin:12px 0 0}.sum li{padding:8px 0;border-top:1px solid var(--line)}.sum b{display:inline-block;min-width:8.5em}
+.big{font-size:clamp(40px,9vw,56px);font-weight:800;line-height:1.05;margin:4px 0}
+.days{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.day{width:52px;text-align:center;font-size:13px;color:var(--soft)}.day svg{display:block;width:40px;height:40px;margin:0 auto 2px}.day .none{display:block;width:40px;height:40px;margin:0 auto 2px;border-radius:50%;background:var(--line)}
+.names{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:16px}
+.nm{background:var(--pick);border:3px solid transparent;font-size:20px;min-height:64px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 6px}.nm .emo{font-size:48px;line-height:1.1;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}.nm.sel{border-color:var(--sun);background:var(--sun2)}
+
+
+
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.aph{width:100%;aspect-ratio:1;border-radius:16px}.nmph{width:72px;height:72px;border-radius:14px}
+.ph .fb{font-weight:700;font-size:15px;color:var(--soft);padding:6px;text-align:center}.pics.three{max-width:480px}
+.pics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;max-width:420px;margin:8px auto 0}
+.pic{background:var(--pick);border:3px solid transparent;display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px 8px;font-size:15px}
+.pic .emo{font-size:56px;line-height:1.1;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}.pic:active{border-color:var(--sun)}.pic.right{border-color:var(--ok)}.pic.wrong{border-color:#d2453a}
+#pk.shake{animation:shake .5s}
+@media (prefers-reduced-motion:reduce){.ph{animation:none!important}#pk.shake{animation:none}}
+@media (max-width:520px){.faces{grid-template-columns:repeat(3,minmax(0,1fr))}.faces .face:nth-child(4){grid-column:1/2}}
+</style>
+</head>
+<body>
+<header class="hero"><svg class="scene" viewBox="0 0 1000 260" preserveAspectRatio="xMaxYMax slice" aria-hidden="true">
+ <defs><radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff4c4" stop-opacity=".9"/><stop offset=".5" stop-color="#ffd27a" stop-opacity=".35"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient>
+ <radialGradient id="sun" cx="40%" cy="40%" r="65%"><stop offset="0" stop-color="#fff6c8"/><stop offset="1" stop-color="#ffd27a"/></radialGradient></defs>
+ 
+ <path d="M0 150 C160 128 300 152 470 176 S820 158 1000 140 V260 H0Z" fill="#d9467a" opacity=".55"/>
+ <path d="M0 236 C200 214 420 244 600 230 S860 214 1000 226 V260 H0Z" fill="var(--bg)"/></svg>
+<svg class="sun" viewBox="0 0 400 400" aria-hidden="true"><defs><radialGradient id="glow2" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff4c4" stop-opacity=".9"/><stop offset=".5" stop-color="#ffd27a" stop-opacity=".35"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient><radialGradient id="sun2" cx="40%" cy="40%" r="65%"><stop offset="0" stop-color="#fff6c8"/><stop offset="1" stop-color="#ffd27a"/></radialGradient></defs><circle cx="200" cy="200" r="200" fill="url(#glow2)"/><circle cx="200" cy="200" r="104" fill="url(#sun2)" opacity=".95"/><circle cx="200" cy="200" r="104" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="3"/></svg>
+<div class="hin"><p class="hello" id="hello">Good morning</p><h1>Morning Check-in</h1><span class="date" id="date"></span><div class="dots" id="dots"></div></div></header>
+<main id="app"><div class="card"><p>Loading…</p></div></main>
+<script>
+{
+/* ================= TEACHER SETTINGS ================= */
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbz332VdjOCtBMh-_VEyCLTx9tTdkh_AZR1TXDxPrZ77WskVNP6b4prspLMpYGrP39KT/exec";
+const SHEET_TAB = "Check-in";        // overview tab; each day also gets its own tab, e.g. "Check-in · 18 Nov"
+const TEACHER = "Mr King";
+const TEACHER2 = "";   // add a second adult here, e.g. "Miss Shereen", to offer "talk to" either of you
+const BOTH = TEACHER2 ? `${TEACHER} or ${TEACHER2}` : TEACHER, BOTHAND = TEACHER2 ? `${TEACHER} and ${TEACHER2}` : TEACHER;
+const WEEKEND = [5, 6];              // Friday and Saturday
+/* Pupils tap their name. Add or remove names here. */
+const CLASS = "";   // not used
+const PUPILS = ["Bareerah","Tarfah","Zaha","Myra","Sebi","Safiyah","Layan","Wali","Maaiz","Khadijah","Hashim","Noah","Yasmeen","Louis","Rayyan","Alana","Jibreel","Areeba","Hirunya","Pem","William","Miss Shereen"].sort();
+/* Each person's animal. They tap their name, then find their animal. Give each person a different one.
+   Animals: dog, cat, rabbit, fox, bear, panda, koala, tiger, lion, cow, pig, frog, monkey, chick, penguin, owl, turtle, octopus, butterfly, dolphin, giraffe, elephant, hedgehog */
+const ANIMALS = {
+  dog: "photo-1552053831-71594a27632d",
+  cat: "photo-1574144611937-0df059b5ef3e",
+  rabbit: "photo-1529040181623-e04ebc611e25",
+  fox: "photo-1639182946622-7de9d7efa6b4",
+  bear: "photo-1561127954-65393e6644d1",
+  panda: "photo-1527118732049-c88155f2107c",
+  koala: "photo-1579972383667-4894c883d674",
+  tiger: "photo-1605092676920-8ac5ae40c7c8",
+  lion: "photo-1511216113906-8f57bb83e776",
+  cow: "photo-1527153857715-3908f2bae5e8",
+  pig: "photo-1516467508483-a7212febe31a",
+  frog: "photo-1572916396232-b4e9e64da034",
+  monkey: "photo-1581828060707-37894f1ed9b8",
+  chick: "photo-1589050593767-a754dd738587",
+  penguin: "photo-1712921674663-0bf5370a2ce7",
+  owl: "photo-1628126907372-761f54441c1b",
+  turtle: "photo-1437622368342-7a3d73a34c8f",
+  octopus: "photo-1545671913-b89ac1b4ac10",
+  butterfly: "photo-1560263816-d704d83cce0f",
+  dolphin: "photo-1570481662006-a3a1374699e8",
+  giraffe: "photo-1561776267-444911d8a195",
+  elephant: "photo-1557050543-4d5f4e07ef46",
+  hedgehog: "photo-1470854989922-5be2f7456d78"
+};  // free Unsplash photos: [animal]: photo id
+/* true = after tapping their name, children must also pick their animal from three.
+   false = each name button shows the animal, and one tap goes straight in. */
+const ASK_ANIMAL = true;
+const MY_ANIMAL = {
+  "Alana": "monkey",
+  "Areeba": "lion",
+  "Bareerah": "cow",
+  "Hashim": "frog",
+  "Hirunya": "pig",
+  "Jibreel": "hedgehog",
+  "Khadijah": "rabbit",
+  "Layan": "penguin",
+  "Louis": "koala",
+  "Maaiz": "owl",
+  "Miss Shereen": "bear",
+  "Myra": "dolphin",
+  "Noah": "dog",
+  "Pem": "chick",
+  "Rayyan": "giraffe",
+  "Safiyah": "elephant",
+  "Sebi": "fox",
+  "Tarfah": "turtle",
+  "Wali": "panda",
+  "William": "cat",
+  "Yasmeen": "octopus",
+  "Zaha": "butterfly"
+};
+/* Free photos from Unsplash (unsplash.com/license). Each line is: [photo id, photographer].
+   To swap a photo, open it on unsplash.com, copy the "photo-..." id from the image address, and paste it here.
+   If a photo cannot load, the emoji shows instead. Open the page with #pictures on the end to check them all. */
+const animalPic=(k,cls)=>`<span class="ph ${cls}"><img src="${photoURL(ANIMALS[k])}" alt="" onload="this.classList.add('ld')" onerror="this.parentNode.classList.add('noimg');this.remove()"><span class="fb">${k}</span></span>`;
+const PHOTOS = {
+  "q_mood": ["photo-1599553599709-1cb9dbff4704", "Idzard Schiphof"],
+  "q_words": ["photo-1621452773781-0f992fd1f5cb", "saeed karimi"],
+  "q_sleep": ["photo-1672928499632-1d040212e3f4", "Richard Stachmann"],
+  "q_breakfast": ["photo-1654923064926-be7e64267a31", "David Foodphototasty"],
+  "q_talk": ["photo-1589206946274-929e4da3996b", "Ronald Felton"],
+  "q_note": ["photo-1646617747593-8f075659286a", "Kelly Sikkema"],
+  "a_sleep_well": ["photo-1672928499660-58693df7af84", "Richard Stachmann"],
+  "a_sleep_ok": ["photo-1533170374490-a7c09cb3cc58", "Unsplash"],
+  "a_sleep_bad": ["photo-1770650402845-fa37c61c9453", "Nikita Pishchugin"],
+  "a_breakfast_yes": ["photo-1752652013272-e0f6cced4913", "Vitaly Gariev"],
+  "a_breakfast_no": ["photo-1567934124115-2eca8953796b", "Metin Ozer"],
+  "a_talk_yes": ["photo-1531325082793-ca7c9db6a4c1", "Gabriel Baranski"],
+  "a_talk_no": ["photo-1643080491625-b36f45a159f8", "ochimax studio"],
+  "Happy": ["photo-1498674202614-ac0172c6c61a", "Jose Ibarra"],
+  "Excited": ["photo-1777421026883-0d55a32e2364", "Christian Agbede"],
+  "Calm": ["photo-1769095207794-02ffab1e2376", "Rohit Dey"],
+  "Proud": ["photo-1591850356360-067508ab570b", "Gabriel Tovar"],
+  "Tired": ["photo-1776443210063-79a2379f9f99", "Anna Khromova"],
+  "Worried": ["photo-1762120514622-752b8f43dd8c", "Nimish Pastaria"],
+  "Sad": ["photo-1517545084371-4a575dde2a02", "Arwan Sutanto"],
+  "Cross": ["photo-1777421026567-906ccde930d9", "Christian Agbede"],
+  "Lonely": ["photo-1769454383535-e9f654669b88", "malwina nogaj"],
+  "Poorly": ["photo-1779299996338-adc5000d3425", "wang binghua"],
+  "Bored": ["photo-1653142732993-5af16437135a", "Ladislav Stercell"],
+  "Nervous": ["photo-1658932070537-ae60de06a15c", "Unsplash"]
+};
+const photoURL=id=>`https://images.unsplash.com/${id}?w=320&h=320&fit=crop&crop=faces,entropy&auto=format&q=70`;
+const pic=(key,label,cls)=>{const p=PHOTOS[key];return `<span class="ph ${cls||""}${p?"":" noimg"}">${p?`<img src="${photoURL(p[0])}" alt="" onload="this.classList.add('ld')" onerror="this.parentNode.classList.add('noimg');this.remove()">`:""}<span class="fb" aria-hidden="true">${label||""}</span></span>`};
+const WORDS = ["Happy","Excited","Calm","Proud","Tired","Worried","Sad","Cross","Lonely","Poorly","Bored","Nervous"];
+/* ==================================================== */
+
+const FACES=[ // value 5 (best) to 1. e = picture
+ {v:5,t:"Really good",c:"#ffc928",m:"M28 50 Q40 64 52 50"},
+ {v:4,t:"Good",c:"#ffd977",m:"M29 52 Q40 60 51 52"},
+ {v:3,t:"OK",c:"#cfe3a8",m:"M29 55 L51 55"},
+ {v:2,t:"Not great",c:"#a9cdf0",m:"M29 58 Q40 51 51 58"},
+ {v:1,t:"Really bad",c:"#8fb0e8",m:"M28 60 Q40 48 52 60"}];
+const faceSVG=f=>`<svg viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="36" fill="${f.c}" stroke="#2a1f3d" stroke-opacity=".25" stroke-width="3"/><circle cx="29" cy="34" r="4.5" fill="#2a1f3d"/><circle cx="51" cy="34" r="4.5" fill="#2a1f3d"/><path d="${f.m}" fill="none" stroke="#2a1f3d" stroke-width="4.5" stroke-linecap="round"/></svg>`;
+
+const STEPS=[
+ {k:"mood",q:"How are you feeling this morning?",type:"face",ph:"q_mood"},
+ {k:"words",q:"Which words describe how you feel?",sub:"Choose up to 3.",type:"chips",ph:"q_words"},
+ {k:"sleep",q:"How did you sleep last night?",type:"opts",ph:"q_sleep",o:["Really well","OK","Not very well"],oph:["a_sleep_well","a_sleep_ok","a_sleep_bad"]},
+ {k:"breakfast",q:"Have you had breakfast?",type:"opts",ph:"q_breakfast",o:["Yes","Not yet"],oph:["a_breakfast_yes","a_breakfast_no"]},
+ {k:"talk",q:`Would you like to talk to ${BOTH} today?`,type:"opts",o:TEACHER2?[`Yes, ${TEACHER}`,`Yes, ${TEACHER2}`,"No, thank you"]:["Yes, please","No, thank you"],ph:"q_talk",oph:TEACHER2?["a_talk_yes","a_talk_yes","a_talk_no"]:["a_talk_yes","a_talk_no"]},
+ {k:"note",q:`Is there anything you want to tell ${BOTH}?`,sub:"You can skip this.",type:"text",ph:"q_note"}];
+
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s),app=$("#app");
+const pad2=n=>String(n).padStart(2,"0"),dstr=d=>`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+const fromStr=s=>{const[y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
+const DN=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const nice=s=>{const d=fromStr(s);return `${DN[d.getDay()]} ${d.getDate()} ${MN[d.getMonth()]}`},short=s=>{const d=fromStr(s);return `${d.getDate()} ${MN[d.getMonth()]}`};
+const TODAY=dstr(new Date());
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const norm=s=>String(s||"").trim().replace(/\s+/g," ");
+const keyOf=(n,c)=>"checkin:"+norm(n).toLowerCase()+"|"+String(c||"").replace(/\s+/g,"").toUpperCase();
+$("#date").textContent=nice(TODAY);{const hr=new Date().getHours();$("#hello").textContent=hr<12?"Good morning":hr<17?"Good afternoon":"Hello";}
+
+const PIN="0000";   // shared behind-the-scenes PIN so history syncs across devices
+let S=store.get("checkin:me",null);if(S&&(!PUPILS.includes(S.name)||S.ok!==MY_ANIMAL[S.name]))S=null;
+let H={};          // date -> mood (1-5). Only the mood is kept as history.
+let A={},step=0;   // today's answers
+
+/* ---------- Sheet ---------- */
+const SHEET_ON=/^https:\/\/script\.google\.com\/.+\/exec$/.test(SHEET_URL);
+function post(ws,cols,extra){if(!SHEET_ON)return;const body=JSON.stringify(Object.assign({ws,name:S.name,cls:S.cls,cols},extra||{}));
+ try{fetch(SHEET_URL,{method:"POST",mode:"no-cors",credentials:"include",headers:{"Content-Type":"text/plain;charset=utf-8"},body,keepalive:true}).catch(()=>{})}catch(e){}}
+function loadRemote(name,cls,pin){if(!SHEET_ON)return Promise.resolve({ok:false});
+ const ctl=typeof AbortController!=="undefined"?new AbortController():null,t=setTimeout(()=>ctl&&ctl.abort(),7000);
+ return fetch(`${SHEET_URL}?action=load&ws=${encodeURIComponent(SHEET_TAB)}&name=${encodeURIComponent(name)}&cls=${encodeURIComponent(cls)}&pin=${encodeURIComponent(pin)}`,ctl?{signal:ctl.signal}:{})
+  .then(r=>r.json()).catch(()=>({ok:false,reason:"offline"})).finally(()=>clearTimeout(t))}
+function send(){const f=FACES.find(x=>x.v===A.mood),now=new Date(),flag=(/^Yes/.test(A.talk)||A.mood<=2)?"YES":"";
+ post(`${SHEET_TAB} · ${short(TODAY)}`,[["Time",`${pad2(now.getHours())}:${pad2(now.getMinutes())}`],["Check in with me",flag],
+  ["Mood (1 to 5)",A.mood],["Feeling",f.t],["Words",(A.words||[]).join(", ")],["Sleep",A.sleep],["Breakfast",A.breakfast],["Wants to talk",A.talk],["Message",(A.note||"").slice(0,1500)]]);
+ const ds=Object.keys(H).sort(),last5=ds.slice(-5).map(d=>H[d]);
+ const ov=[["Last check-in",nice(TODAY)],["Today's mood",A.mood],["Wants to talk today",A.talk==="Yes, please"?"YES":/^Yes/.test(A.talk)?A.talk.replace(/^Yes, /,""):""],
+  ["Average mood (last 5)",Math.round(10*last5.reduce((a,b)=>a+b,0)/last5.length)/10],["Low days (last 5)",last5.filter(v=>v<=2).length],["Check-ins",ds.length]];
+ ds.forEach(d=>ov.push(["Mood "+nice(d),H[d]]));
+ post(SHEET_TAB,ov,{pin:S.pin,state:JSON.stringify(H)})}
+
+/* ---------- screens ---------- */
+function dots(n){$("#dots").innerHTML=n<0?"":STEPS.map((_,i)=>`<i class="${i<=n?"on":""}"></i>`).join("")}
+function signIn(){dots(-1);
+ app.innerHTML=`<div class="card"><h2>Tap your name.</h2>
+  <div class="names">${PUPILS.map(n=>`<button class="nm" data-n="${esc(n)}">${ASK_ANIMAL?"":animalPic(MY_ANIMAL[n],"nmph")}<span>${esc(n)}</span></button>`).join("")}</div></div>`;
+ app.querySelectorAll(".nm").forEach(b=>b.onclick=()=>ASK_ANIMAL?codeScreen(b.dataset.n):enter(b.dataset.n,b))}
+async function enter(name,b){if(b){b.classList.add("sel")}
+ const res=await loadRemote(name,CLASS,PIN);H=store.get(keyOf(name,CLASS),{});if(res.ok){try{Object.assign(H,JSON.parse(res.state)||{})}catch(e){}}
+ S={name,cls:CLASS,pin:PIN,ok:MY_ANIMAL[name]};store.set("checkin:me",S);store.set(keyOf(name,CLASS),H);home()}
+
+function choices(name){ // their animal plus 2 others, same each time
+ const mine=MY_ANIMAL[name],others=Object.keys(ANIMALS).filter(k=>k!==mine);let h=0;for(const c of name)h=(h*31+c.charCodeAt(0))>>>0;
+ const rnd=()=>{h=(h*1103515245+12345)>>>0;return h/4294967296};
+ for(let i=others.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[others[i],others[j]]=[others[j],others[i]]}
+ const three=others.slice(0,2);three.splice(Math.floor(rnd()*3),0,mine);return three}
+function codeScreen(name){dots(-1);let fails=0;
+ app.innerHTML=`<div class="card"><h2>Hello, ${esc(name)}!</h2><p style="margin:0">Tap your animal.</p><p class="err" id="er" aria-live="polite"></p>
+  <div class="pics three" id="pk">${choices(name).map(k=>`<button class="pic" data-k="${k}">${animalPic(k,"aph")}<span>${k}</span></button>`).join("")}</div>
+  <div class="row"><button class="link" id="nb">That's not my name</button></div></div>`;
+ $("#nb").onclick=signIn;
+ app.querySelectorAll(".pic").forEach(b=>b.onclick=async()=>{const k=b.dataset.k;
+  if(k!==MY_ANIMAL[name]){fails++;b.classList.add("wrong");$("#pk").classList.add("shake");setTimeout(()=>{$("#pk").classList.remove("shake");b.classList.remove("wrong")},500);
+   $("#er").textContent=fails>=3?`Not quite. Ask ${TEACHER} which animal is yours.`:"That's not your animal. Try again!";return}
+  b.classList.add("right");$("#er").textContent="";
+  const res=await loadRemote(name,CLASS,PIN);H=store.get(keyOf(name,CLASS),{});if(res.ok){try{Object.assign(H,JSON.parse(res.state)||{})}catch(e){}}
+  S={name,cls:CLASS,pin:PIN,ok:k};store.set("checkin:me",S);store.set(keyOf(name,CLASS),H);home()})}
+
+function home(){dots(-1);const done=H[TODAY]!=null,weekend=WEEKEND.includes(new Date().getDay());
+ const days=[];const d=new Date();while(days.length<10){if(!WEEKEND.includes(d.getDay()))days.unshift(dstr(d));d.setDate(d.getDate()-1)}
+ const first=/^(Mr|Mrs|Miss|Ms)\b/.test(S.name)?S.name:S.name.split(" ")[0];
+ app.innerHTML=`<div class="card">${done?`<h2>Thank you, ${esc(first)}!</h2><p>You have checked in today. ${BOTHAND} will read it.</p><div class="row"><button class="ghost" id="go">Change my answers</button></div>`
+  :`<h2>Good morning, ${esc(first)}!</h2><p>${weekend?"It's the weekend, but you can still check in if you want to.":"Take a minute to tell "+BOTH+" how you are feeling. There are no wrong answers."}</p><div class="row"><button class="go" id="go">Start my check-in</button></div>`}</div>
+  <div class="card"><h2>My last 10 school days</h2><div class="days">${days.map(x=>{const v=H[x],f=FACES.find(y=>y.v===v);return `<div class="day">${f?faceSVG(f):'<span class="none"></span>'}${DN[fromStr(x).getDay()]} ${fromStr(x).getDate()}</div>`}).join("")}</div>
+  <p class="muted" style="margin-top:14px">Signed in as <b>${esc(S.name)}</b>. <button class="link" id="so">Not you?</button></p></div>`;
+ $("#go").onclick=()=>{A=done?(store.get("checkin:today:"+keyOf(S.name,S.cls),{})[TODAY]||{}):{};step=0;ask()};
+ $("#so").onclick=()=>{S=null;try{localStorage.removeItem("checkin:me")}catch(e){}signIn()}}
+
+function ask(){dots(step);const s=STEPS[step],v=A[s.k];let body="";
+ if(s.type==="face")body=`<div class="faces" role="group" aria-label="${s.q}">${FACES.map(f=>`<button class="face${v===f.v?" sel":""}" data-v="${f.v}">${faceSVG(f)}<span>${f.t}</span></button>`).join("")}</div>`;
+ if(s.type==="chips")body=`<div class="chips wgrid">${WORDS.map(w=>`<button class="chip${(v||[]).includes(w)?" sel":""}" data-v="${w}" aria-pressed="${(v||[]).includes(w)}">${pic(w,"","wph")}<span>${w}</span></button>`).join("")}</div>`;
+ if(s.type==="opts")body=`<div class="opts">${s.o.map((o,i)=>`<button class="opt${v===o?" sel":""}" data-v="${o}">${s.oph&&s.oph[i]?pic(s.oph[i],"","oph"):""}<span>${o}</span></button>`).join("")}</div>`;
+ if(s.type==="text")body=`<textarea aria-label="${s.q}" style="margin-top:16px" id="nt" maxlength="1500">${esc(v||"")}</textarea>`;
+ const needNext=s.type==="chips"||s.type==="text";
+ app.innerHTML=`<div class="card"><p class="muted" style="margin:0 0 6px">Question ${step+1} of ${STEPS.length}</p><div class="qhead">${pic(s.ph,"","qpic")}<div><h2>${s.q}</h2>${s.sub?`<p class="muted" style="margin:2px 0 0">${s.sub}</p>`:""}</div></div>${body}
+  <div class="row">${step?`<button class="ghost" id="bk">Back</button>`:""}${needNext?`<button class="go" id="nx">${step===STEPS.length-1?"Finish":"Next"}</button>`:""}</div></div>`;
+ if($("#bk"))$("#bk").onclick=()=>{step--;ask()};
+ if(s.type==="face"||s.type==="opts")app.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{A[s.k]=s.type==="face"?Number(b.dataset.v):b.dataset.v;b.classList.add("sel");setTimeout(()=>{step++;ask()},250)});
+ if(s.type==="chips")app.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{const l=A.words=A.words||[],w=b.dataset.v,i=l.indexOf(w);
+  if(i>=0)l.splice(i,1);else{if(l.length>=3)return;l.push(w)}b.classList.toggle("sel",l.includes(w));b.setAttribute("aria-pressed",l.includes(w))});
+ if(needNext)$("#nx").onclick=()=>{if(s.type==="text")A.note=$("#nt").value.trim();if(step<STEPS.length-1){step++;ask()}else finish()}}
+
+function finish(){H[TODAY]=A.mood;store.set(keyOf(S.name,S.cls),H);
+ const t={};t[TODAY]=A;store.set("checkin:today:"+keyOf(S.name,S.cls),t);  // only today's answers stay on this device
+ send();dots(STEPS.length);const f=FACES.find(x=>x.v===A.mood);
+ const who=/^Yes, (Mr|Miss|Mrs|Ms)/.test(A.talk)?A.talk.replace(/^Yes, /,""):TEACHER;
+ const msg=/^Yes/.test(A.talk)?`${who} will find a time to talk to you today.`:A.mood<=2?`Thank you for telling ${BOTHAND}. It's OK to have days like this.`:"Have a brilliant day!";
+ app.innerHTML=`<div class="card" style="text-align:center"><div style="width:110px;margin:0 auto">${faceSVG(f)}</div><div class="big">Thank you!</div><p style="font-size:20px">${msg}</p>
+  <ul class="sum" style="text-align:left"><li><b>Feeling</b>${f.t}${A.words&&A.words.length?" ("+esc(A.words.join(", "))+")":""}</li><li><b>Sleep</b>${A.sleep}</li><li><b>Breakfast</b>${A.breakfast}</li><li><b>Talk today</b>${A.talk}</li></ul>
+  <div class="row" style="justify-content:center"><button class="go" id="hm">Done</button></div></div>`;
+ $("#hm").onclick=home}
+
+function pictures(){dots(-1);const all=Object.keys(PHOTOS).concat(Object.keys(ANIMALS));
+ app.innerHTML=`<div class="card"><h2>Check the pictures</h2><p class="muted">Teacher view. Each photo and what it stands for. Swap any you don't like in PHOTOS at the top of the file. Photos are free under the Unsplash licence.</p>
+  <div class="wgrid" style="margin-top:14px">${all.map(k=>`<div class="chip" style="cursor:default">${(PHOTOS[k]?pic(k,"","wph"):animalPic(k,"wph"))}<b>${k.replace(/^q_/,"Question: ").replace(/^a_/,"Answer: ").replace(/_/g," ")}</b><span class="muted" style="font-size:13px">${PHOTOS[k]?PHOTOS[k][1]:"Animal"}</span><span class="bad" data-bad="${k}"></span></div>`).join("")}</div></div>`;
+ setTimeout(()=>app.querySelectorAll(".ph.noimg").forEach(ph=>{const b=ph.parentNode.querySelector(".bad");if(b)b.textContent="Not loading: needs a new photo"}),6000)}
+function start(){try{Object.values(PHOTOS).forEach(p=>{const i=new Image();i.src=photoURL(p[0])});Object.values(ANIMALS).forEach(id=>{const i=new Image();i.src=photoURL(id)})}catch(e){}
+ if(location.hash==="#pictures")return pictures();if(!S)return signIn();H=store.get(keyOf(S.name,S.cls),{});
+ if(SHEET_ON&&S.pin)loadRemote(S.name,S.cls,S.pin).then(res=>{if(res.ok){try{const r=JSON.parse(res.state)||{};let ch=false;Object.keys(r).forEach(d=>{if(H[d]==null){H[d]=r[d];ch=true}});if(ch){store.set(keyOf(S.name,S.cls),H);if(!app.querySelector("h2")||/morning|Thank you,/.test(app.querySelector("h2").textContent))home()}}catch(e){}}});
+ home()}
+start();
+}
+</script>
+</body>
+</html>
